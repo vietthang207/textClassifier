@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-class Classifier {
+class Classifier implements Serializable {
 
 	String className;
 	double chiSquareThreshold;
@@ -26,6 +27,7 @@ class Classifier {
 		this.learningRate = learningRate;
 		this.numIteration = numIteration;
 		vocab = new HashSet<String>();
+		vocabCount = new HashMap<String, Integer>();
 		numPositiveText = numNegativeText = 0;
 		positiveCount = new HashMap<String, Integer>();
 		negativeCount = new HashMap<String, Integer>();
@@ -34,12 +36,13 @@ class Classifier {
 	}
 
 	public void addSample(Sample s) {
+		samples.add(s);
 		for (String w: s.words) {
 			if (vocab.contains(w)) {
 				vocabCount.put(w, vocabCount.get(w) + 1);
 			} else {
 				vocab.add(w);
-				vocabCount.put(w, 1);				
+				vocabCount.put(w, 1);			
 			}
 		}
 		if (s.className.equals(this.className)) {
@@ -85,6 +88,7 @@ class Classifier {
 				features.add(w);
 			}
 		}
+		System.out.println("Feature of: " + className + " : " + features.size());
 	}
 
 	public void initializeWeights() {
@@ -129,22 +133,29 @@ class Classifier {
 		return 0;
 	}
 
-	public void perceptronLearning() {
+	public void runPerceptronLearning() {
 		for (int iter = 0; iter < numIteration; iter ++) {
 			double[][] vectors = new double[samples.size()][];
 			double[] label = new double[samples.size()];
 			double[] predictedLabel = new double[samples.size()];
+			int incorrect = 0;
 			for (int i=0; i<samples.size(); i++) {
+				// System.out.println(i);
 				vectors[i] = getFeatureVector(samples.get(i));
 				label[i] = getLabel(samples.get(i));
 				predictedLabel[i] = predictLabel(samples.get(i));
+				if (Math.abs(label[i] - predictedLabel[i]) > 0.5) incorrect ++;
 			}
+			// System.out.println("Incorrect " + incorrect + " total: " + samples.size());
 			for (int i=0; i<weights.length; i++) {
 				double delta = 0;
-				for (int j=0; j<samples.size(); i++) {
+				for (int j=0; j<samples.size(); j++) {
+					// System.out.println(i + " " + j);
 					delta += vectors[j][i] * (label[j] - predictedLabel[j]);
+					// System.out.println(label[j] + " " + predictedLabel[j]);
 				}
 				weights[i] += learningRate * delta;
+				// System.out.println("update w " + delta);
 			}
 		}
 	}
