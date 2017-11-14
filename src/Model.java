@@ -20,6 +20,18 @@ class Model implements Serializable{
 		}
 	}
 
+	public Model(String[] classNames, Hyperparameters hyperParams) {
+		this.classNames = classNames;
+		this.chiSquareThreshold = hyperParams.chiSquareThreshold;
+		this.kThreshold = hyperParams.kThreshold;
+		this.learningRate = hyperParams.learningRate;
+		this.numIteration = hyperParams.numIteration;
+		classifiers = new Classifier[classNames.length];
+		for (int i=0; i<classNames.length; i++) {
+			classifiers[i] = new Classifier(classNames[i], chiSquareThreshold, kThreshold, learningRate, numIteration);
+		}
+	}
+
 	public void addSample(Sample s) {
 		// if (s==null || s.words==null) {
 		// 	System.out.println("bla");
@@ -45,14 +57,11 @@ class Model implements Serializable{
 		double res = Double.NEGATIVE_INFINITY;
 		int mini = -1;
 		for (int i=0; i<classNames.length; i++) {
-			// System.out.print(prediction[i] + " ");
 			if (prediction[i] > res) {
 				mini = i;
 				res = prediction[i];
 			}
 		}
-		// System.out.println();
-		// System.out.println(mini + " " + prediction[mini]);
 		return classNames[mini];
 	}
 

@@ -89,7 +89,7 @@ class Classifier implements Serializable {
 				features.add(w);
 			}
 		}
-		System.out.println("Number of features of " + className + " : " + features.size());
+		// System.out.println("Number of features of " + className + " : " + features.size());
 	}
 
 	public void initializeWeights() {
@@ -157,12 +157,7 @@ class Classifier implements Serializable {
 			for (int i=0; i<weights.length; i++) {
 				double delta = 0;
 				for (int j=0; j<samples.size(); j++) {
-					// System.out.println(i + " " + j);
-					double factor = 1;
-					// if (label[j] > 0.5 && predictedLabel[j] < 0.5) factor = 3;
-					delta += vectors[j][i] * (label[j] - predictedLabel[j]) * factor;
-					// System.out.println(label[j] + " " + predictedLabel[j]);
-					// weights[i] += learningRate * delta;
+					delta += vectors[j][i] * (label[j] - predictedLabel[j]);
 				}
 				weights[i] += learningRate * delta;
 				// if (className.equals("c1")) System.out.println("update w " +i + " "+ delta);
