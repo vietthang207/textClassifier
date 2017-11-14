@@ -16,8 +16,7 @@ class Main {
 				return;
 			}
 			else if (args[0].equals("tc_test") && args.length == 5) {
-				double accuracy = tcTest(args[1], args[2], args[3], args[4]);
-				System.out.println("Test accuracy: " + accuracy);
+				tcTest(args[1], args[2], args[3], args[4]);
 				return;
 			}
 			// else if (args[0].equals("cross_validation") && args.length == 4) {
@@ -52,7 +51,7 @@ class Main {
 		System.out.println("5-fold crossvalidation accuracy: " + cvAccuracy);
 		Model model = train(classNames, samples, hyperParams);
 		saveModel(model, modelName);
-		double trainingAccuracy = tcTest(stopWordsFile, modelName, "", trainClassListFile);
+		double trainingAccuracy = testOnLabeledFile(stopWordsFile, modelName, "", trainClassListFile);
 		System.out.println("Training accuracy: " + trainingAccuracy);
 	}
 
@@ -133,7 +132,23 @@ class Main {
 		return cvError;
 	}
 
-	public static double tcTest(String stopWordsFile, String modelName, String testListFile, String testClassListFile) throws IOException, ClassNotFoundException {
+	public static void tcTest(String stopWordsFile, String modelName, String testListFile, String testClassListFile) throws IOException, ClassNotFoundException {
+		Model model = loadModel(modelName);
+		HashSet<String> stopWords = Preprocessor.getStopWordFromFile(stopWordsFile);
+		PrintWriter writer = new PrintWriter(testClassListFile);
+		DataReader dataReader = new DataReader(testListFile);
+		ArrayList<Sample> samples = new ArrayList<Sample>();
+		String line;
+		while ( (line = dataReader.nextLine()) != null) {
+			Sample s = new Sample("", line, stopWords);
+			String res = line + " " + model.predict(s);
+			writer.println(res);
+		}
+		dataReader.close();
+		writer.close();
+	}
+
+	public static double testOnLabeledFile(String stopWordsFile, String modelName, String testListFile, String testClassListFile) throws IOException, ClassNotFoundException {
 		Model model = loadModel(modelName);
 		HashSet<String> stopWords = Preprocessor.getStopWordFromFile(stopWordsFile);
 		DataReader dataReader = new DataReader(testClassListFile);
