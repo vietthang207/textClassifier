@@ -44,7 +44,7 @@ class Main {
 			classNames[counter] = n;
 			counter ++;
 		}
-		Model model = new Model(classNames, 100, 100, 0.001, 500);
+		Model model = new Model(classNames, 100, 10, 0.01, 50);
 		System.out.println("Finish reading " + samples.size() + " training samples");
 		for (Sample s: samples) {
 			// System.out.print(s.className);

@@ -2,6 +2,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 class Classifier implements Serializable {
 
@@ -88,11 +89,15 @@ class Classifier implements Serializable {
 				features.add(w);
 			}
 		}
-		System.out.println("Feature of: " + className + " : " + features.size());
+		System.out.println("Number of features of " + className + " : " + features.size());
 	}
 
 	public void initializeWeights() {
 		weights = new double[features.size()+1];
+		// Random rd = new Random();
+		// for (int i=0; i<weights.length; i++) {
+		// 	weights[i] = rd.nextDouble() - 0.5;
+		// }
 	}
 
 	private double getLabel(Sample s) {
@@ -110,10 +115,12 @@ class Classifier implements Serializable {
 				count.put(w, 1);
 			}
 		}
-		vector[0] = 1;
+		vector[0] = 1.0/features.size();
 		for (int i=0; i<features.size(); i++) {
 			if (count.containsKey(features.get(i))) {
 				vector[i + 1] = 1.0 * count.get(features.get(i)) / s.words.length;	
+			} else {
+				vector[i + 1] = 0;
 			}
 		}
 		return vector;
@@ -151,11 +158,14 @@ class Classifier implements Serializable {
 				double delta = 0;
 				for (int j=0; j<samples.size(); j++) {
 					// System.out.println(i + " " + j);
-					delta += vectors[j][i] * (label[j] - predictedLabel[j]);
+					double factor = 1;
+					// if (label[j] > 0.5 && predictedLabel[j] < 0.5) factor = 3;
+					delta += vectors[j][i] * (label[j] - predictedLabel[j]) * factor;
 					// System.out.println(label[j] + " " + predictedLabel[j]);
+					// weights[i] += learningRate * delta;
 				}
 				weights[i] += learningRate * delta;
-				// System.out.println("update w " + delta);
+				// if (className.equals("c1")) System.out.println("update w " +i + " "+ delta);
 			}
 		}
 	}
